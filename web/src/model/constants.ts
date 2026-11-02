@@ -9,7 +9,8 @@ export const MODEL_INFO = {
   sourceRepository: 'https://github.com/bcgov/forestDroughtTool',
   sourceCommit: 'e02ddcbf8203e65bada1a36655887e1d0c8fe2f5',
   methodVersion: '1.0.0',
-  validation: 'Daily kernel matched upstream R on 15 synthetic cases (84,501 comparisons; scaled tolerance 1e-10). Research model; wrapper policies differ.',
+  validation:
+    'Daily kernel matched upstream R on 15 synthetic cases (84,501 comparisons; scaled tolerance 1e-10). Research model; wrapper policies differ.',
 } as const
 
 export const MAX_CLIMATE_DAYS = 36_600
