@@ -14,8 +14,8 @@ For an uncompiled TypeScript model, use `node --import tsx` in step 4. The R
 process requires `dplyr` and `tidyr`. The comparator has only Node standard
 library dependencies when pointed at compiled JavaScript.
 
-`cases/` contains deterministic synthetic climate CSVs; these are not observed
-weather or projections. The cases cover seasonal variation, frozen weather,
+`create-inputs.mjs` regenerates the ignored `cases/` directory of deterministic
+synthetic climate CSVs; these are not observed weather or projections. The cases cover seasonal variation, frozen weather,
 prolonged drought, heavy rain, a negative lateral-flow parameter, three
 latitude tables and leap days. `generated/` is runtime output and should be
 uploaded as a CI artifact rather than confused with reviewed source data.
