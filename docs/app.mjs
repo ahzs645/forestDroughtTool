@@ -38,17 +38,17 @@ $('demo').onclick = () => { fileGeneration++; $('climate').value = ''; setClimat
 $('template').onclick = () => download(createExampleClimateCsv(), 'synthetic-climate-example.csv')
 $('scenario-template').onclick = () => download(JSON.stringify([{ id: 'monthly-example', label: 'User-defined monthly climate sensitivity', monthly: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, tminDelta: 2, tmaxDelta: 2, precipMultiplier: i >= 4 && i <= 8 ? 0.85 : 1 })) }], null, 2), 'monthly-scenarios.json', 'application/json')
 $('scenario-file').onchange = async () => {
-  const id = ++scenarioGeneration, file = $('scenario-file').files?.[0]; scenarioData = []; invalidate()
+  const id = ++scenarioGeneration, file = $('scenario-file').files?.[0]; scenarioData = []; $('warming').disabled = false; $('precip').disabled = false; invalidate()
   if (!file) return
   if (file.size > 100_000) { error('Monthly scenario JSON must be at most 100 KB.'); return }
   try {
     const parsed = JSON.parse(await file.text())
     if (id !== scenarioGeneration) return
     if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 9) throw new Error('Provide an array of 1 to 9 scenarios; see the downloadable template.')
-    scenarioData = parsed; $('scenario-info').textContent = `${parsed.length} monthly scenarios loaded from ${file.name}. Uniform adjustments are ignored.`
+    scenarioData = parsed; $('warming').disabled = true; $('precip').disabled = true; $('scenario-info').textContent = `${parsed.length} monthly scenarios loaded from ${file.name}. Uniform adjustments are ignored.`
   } catch (e) { if (id === scenarioGeneration) { $('scenario-info').textContent = 'Invalid scenario file. Correct it or clear monthly scenarios.'; error(e.message) } }
 }
-$('clear-scenarios').onclick = () => { scenarioGeneration++; scenarioData = []; $('scenario-file').value = ''; $('scenario-info').textContent = 'Uniform adjustments are used when nonzero.'; invalidate() }
+$('clear-scenarios').onclick = () => { scenarioGeneration++; scenarioData = []; $('warming').disabled = false; $('precip').disabled = false; $('scenario-file').value = ''; $('scenario-info').textContent = 'Uniform adjustments are used when nonzero.'; invalidate() }
 for (const element of document.querySelectorAll('select,input[type=number]')) element.addEventListener('input', invalidate)
 $('cancel').onclick = () => { stop(); $('status').textContent = 'Calculation cancelled. No partial result is displayed.' }
 
@@ -59,7 +59,7 @@ function readOptions() {
     soils[Number(input.dataset.index)][input.dataset.field] = Number(input.value)
   }
   const delta = Number($('warming').value), multiplier = Number($('precip').value)
-  if (!$('warming').value.trim() || !$('precip').value.trim() || !Number.isFinite(delta) || !Number.isFinite(multiplier)) throw new Error('Enter finite scenario adjustments.')
+  if (!scenarioData.length && (!$('warming').value.trim() || !$('precip').value.trim() || !Number.isFinite(delta) || !Number.isFinite(multiplier))) throw new Error('Enter finite scenario adjustments.')
   if ($('scenario-file').files?.length && !scenarioData.length) throw new Error('Correct the monthly scenario file, or clear it before running.')
   const scenarios = scenarioData.length ? scenarioData : delta !== 0 || multiplier !== 1 ? [{ id: 'user-adjustment', label: `User sensitivity: ${delta} °C; precipitation ×${multiplier}`, monthly: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, tminDelta: delta, tmaxDelta: delta, precipMultiplier: multiplier })) }] : []
   return { latitude: Number($('latitude').value), summaryPolicy: $('policy').value, soils, scenarios }

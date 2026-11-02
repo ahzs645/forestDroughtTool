@@ -174,11 +174,19 @@ export function runSimulation(
   const summaryPolicy = input.summaryPolicy ?? 'day-weighted'
   if (summaryPolicy !== 'day-weighted' && summaryPolicy !== 'equal-month')
     throw new Error('Choose day-weighted or equal-month annual summaries.')
+  if (input.scenarios !== undefined && !Array.isArray(input.scenarios))
+    throw new Error('Scenarios must be an array of scenario objects.')
   const scenarios = input.scenarios ?? []
   if (scenarios.length > MAX_SCENARIOS) throw new Error(`At most ${MAX_SCENARIOS} custom scenarios can run together.`)
   const seen = new Set(['current'])
   for (const scenario of scenarios) {
-    if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/.test(scenario.id) || seen.has(scenario.id))
+    if (!scenario || typeof scenario !== 'object' || Array.isArray(scenario))
+      throw new Error('Each scenario must be an object with a string ID, label and monthly anomalies.')
+    if (
+      typeof scenario.id !== 'string' ||
+      !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/.test(scenario.id) ||
+      seen.has(scenario.id)
+    )
       throw new Error(
         'Scenario IDs must be unique, 1–80 letters/numbers/dots/underscores/hyphens; current is reserved.',
       )

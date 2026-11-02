@@ -172,12 +172,18 @@ export function validateSoils(soils) {
     }
 }
 export function validateMonthlyAnomalies(monthly) {
-    if (monthly.length !== 12 || new Set(monthly.map((item) => item.month)).size !== 12) {
+    if (!Array.isArray(monthly) || monthly.length !== 12) {
         throw new Error('Each scenario requires exactly one anomaly for every month, 1–12.');
     }
+    const seen = new Set();
     for (const item of monthly) {
+        if (!item || typeof item !== 'object' || Array.isArray(item))
+            throw new Error('Each monthly anomaly must be an object containing month, tminDelta, tmaxDelta and precipMultiplier.');
         if (!Number.isInteger(item.month) || item.month < 1 || item.month > 12)
             throw new Error('Anomaly month must be an integer from 1 to 12.');
+        if (seen.has(item.month))
+            throw new Error('Each scenario requires exactly one anomaly for every month, 1–12.');
+        seen.add(item.month);
         if (![item.tminDelta, item.tmaxDelta, item.precipMultiplier].every(Number.isFinite))
             throw new Error(`Month ${item.month}: anomalies must be finite.`);
         if (item.precipMultiplier < 0)

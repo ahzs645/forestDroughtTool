@@ -1,6 +1,6 @@
 # Browser forest drought calculator
 
-The research calculator in `src/features/forest-drought/model` is a pure
+The research calculator in `web/src/model` is a pure
 TypeScript adaptation of the daily water-balance kernel in
 [`bcgov/forestDroughtTool` at `e02ddcbf`](https://github.com/bcgov/forestDroughtTool/tree/e02ddcbf8203e65bada1a36655887e1d0c8fe2f5).
 It takes prepared daily climate observations and five soils, calculates daily
@@ -23,7 +23,7 @@ import {
   simulationSummaryCsv,
   simulationDailyCsv,
   simulationConfigurationJson,
-} from '@/features/forest-drought/model'
+} from './docs/lib/model/index.js'
 
 const climate = parseClimateCsv(text)
 const result = runSimulation({
@@ -225,7 +225,7 @@ weighted summaries, parameter export, reproducible year selection, and work
 limits:
 
 ```sh
-npx vitest run src/features/forest-drought/model
+cd web && npm test
 ```
 
 The reference harness executes the **original unmodified `asmrCalc.R`**, whose
@@ -234,12 +234,12 @@ and class RData. `upstream/manifest.json` records exact Git hashes, SHA256 and
 byte sizes for every archived source file. `verify-upstream.mjs` checks them.
 
 ```sh
-node scripts/forest-drought/reference/verify-upstream.mjs
-node scripts/forest-drought/reference/create-inputs.mjs /tmp/drought-cases
-Rscript scripts/forest-drought/reference/generate-reference.R \
-  scripts/forest-drought/reference /tmp/drought-cases /tmp/drought-r-reference
-node --import tsx scripts/forest-drought/reference/compare-reference.mjs \
-  src/features/forest-drought/model/index.ts \
+node web/scripts/reference/verify-upstream.mjs
+node web/scripts/reference/create-inputs.mjs /tmp/drought-cases
+Rscript web/scripts/reference/generate-reference.R \
+  web/scripts/reference /tmp/drought-cases /tmp/drought-r-reference
+node web/scripts/reference/compare-reference.mjs \
+  docs/lib/model/index.js \
   /tmp/drought-cases /tmp/drought-r-reference
 ```
 
@@ -258,10 +258,21 @@ it does not validate the later forDRAT methodology, the original data-cleaning
 or scenario/year wrappers, or biological predictive performance. Results are
 written to `comparison-report.json` beside R's daily CSVs and `R-session.txt`.
 
-The application metadata initially marks the port experimental because this
-workspace has no R executable. Only update that validation statement after a
-successful actual R comparison, recording the run evidence. Passing tests of
-translated arithmetic alone is not an R parity result.
+The actual R comparison passed in [the fork's reference workflow](https://github.com/ahzs645/forestDroughtTool/actions/runs/41406309038)
+using R 4.5.2 and the compiled browser modules. The [recorded report](reference-validation.json)
+contains 15 cases, 7,680 daily rows and 84,501 scalar comparisons. Maximum
+absolute difference was 5.542233338928781e-13; maximum scaled difference was
+4.18554080283684e-14, below the 1e-10 tolerance. The report identifies the tested
+port commit and the downloadable daily reference outputs. The workflow reruns
+this comparison on fork changes. Internal storage/runoff arrays, which the R
+kernel does not return, and the deliberately adapted wrappers are outside this
+agreement claim. The tool remains a research model.
+
+A synthetic ten-year run (2000–2009; 3,653 daily records, baseline plus nine
+adjustments, 182,650 soil-day evaluations) completed in 274 ms under Node
+v24.22.1 in the development executor. This is a local timing observation, not
+a browser or mobile performance guarantee. It does not justify adding a Wasm
+runtime for this workload; larger workloads should be profiled separately.
 
 ## Licensing
 
