@@ -1,0 +1,14 @@
+{
+  "name": "forest-drought-tool-browser",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

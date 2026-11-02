@@ -1,3 +1,16 @@
+# forestDroughtTool · Browser edition
+
+This fork adds a client-side TypeScript model and a static web calculator while retaining the original R package below.
+
+- [Open the browser calculator](https://ahzs645.github.io/forestDroughtTool/)
+- [Browser source and setup](web/README.md)
+- [Method, deliberate behavior changes, and validation](web/METHOD.md)
+- [Published forDRAT explorer](https://github.com/ahzs645/forDRAT)
+
+Climate files and scenarios are processed locally in a cancellable Web Worker. See the model metadata and reference workflow for the validation status; this is separate from the newer published forDRAT estimates.
+
+---
+
 <!-- 
 <a id="devex-badge" rel="Exploration" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="Being designed and built, but in the lab. May change, disappear, or be buggy." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/exploration.svg" title="Being designed and built, but in the lab. May change, disappear, or be buggy." /></a>
 -->

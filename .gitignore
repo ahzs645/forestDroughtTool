@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 README_trial.md
+
+# Browser edition build dependencies and reference outputs
+web/node_modules/
+web/scripts/reference/cases/
+web/scripts/reference/generated/

@@ -1,0 +1,44 @@
+name: Browser model and R reference
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build browser application and check core behavior
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+          npm test
+          git diff --exit-code -- ../docs
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5.2'
+          use-public-rspm: true
+      - name: Install original kernel dependencies
+        shell: Rscript {0}
+        run: install.packages(c('dplyr', 'tidyr'))
+      - name: Compare compiled TypeScript with the unchanged R kernel
+        run: |
+          node web/scripts/reference/create-inputs.mjs /tmp/forest-drought-cases
+          Rscript web/scripts/reference/generate-reference.R web/scripts/reference /tmp/forest-drought-cases /tmp/forest-drought-reference
+          node web/scripts/reference/compare-reference.mjs "$PWD/docs/lib/model/index.js" /tmp/forest-drought-cases /tmp/forest-drought-reference
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forest-drought-r-reference
+          path: /tmp/forest-drought-reference
+          if-no-files-found: ignore

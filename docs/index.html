@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Run the BC forest drought water-balance model in your browser using local daily climate data.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; worker-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'">
+  <title>Forest drought · Local climate calculator</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<header class="masthead"><a href="https://github.com/ahzs645/forestDroughtTool">FOREST DROUGHT / BROWSER EDITION</a><a href="https://ahzs645.github.io/forDRAT/">Published forDRAT explorer ↗</a></header>
+<main>
+  <section class="intro"><span class="eyebrow">LOCAL CLIMATE · FIVE SOIL REGIMES</span><h1>Explore a forest’s<br>water balance.</h1><p>Import daily climate, adjust soils, and compare a climate sensitivity scenario. Calculations run in a Web Worker on your device. Your files stay in this browser.</p></section>
+  <aside class="notice"><strong>Legacy research calculator.</strong> This is a TypeScript adaptation of the 2019 <code>forestDroughtTool</code> model. It does not recreate the newer published forDRAT estimates. <span id="validation"></span> Its output concerns the model’s water balance; it is not a planting recommendation.</aside>
+  <form id="setup" class="panel">
+    <h2>1. Climate and calculation</h2>
+    <div class="grid"><label>Daily climate CSV<input id="climate" type="file" accept=".csv,text/csv"></label><label>Latitude lookup<select id="latitude"><option value="50">50° N</option><option value="55" selected>55° N</option><option value="60">60° N</option></select></label><label>Summary weighting<select id="policy"><option value="equal-month">Equal weight per calendar month</option><option value="day-weighted">Equal weight per day</option></select></label></div>
+    <p class="hint">Columns: <code>date,tmn,tmx,ppt</code>. Dates use YYYY-MM-DD; temperatures use °C and precipitation mm/day. Supply complete, continuous calendar years in order. Missing days and values are rejected.</p>
+    <div class="actions"><button id="demo" type="button" class="secondary">Load synthetic demonstration</button><button id="template" type="button" class="secondary">Download example CSV</button><span id="input-info" class="hint">No climate file selected.</span></div>
+    <h2>2. Soil parameters</h2><p class="hint">Defaults are decoded from the original R package. All five regimes run together; they do not identify the soil at your site. Negative lateral drainage represents the legacy model’s water subsidy.</p>
+    <div class="table-wrap"><table><caption>Editable soil water storage and drainage, in millimetres</caption><thead><tr><th>Regime</th><th>Capacity (AFC)</th><th>Drainage threshold (AWSC)</th><th>Lateral drainage / day</th></tr></thead><tbody id="soils"></tbody></table></div>
+    <details><summary>3. Compare a climate sensitivity scenario</summary><p class="hint">These adjustments are user assumptions, not ClimateBC projections. A monthly-scenario JSON file overrides the uniform adjustments. Up to nine scenarios can be supplied.</p><div class="grid"><label>Temperature change (°C)<input id="warming" type="number" min="-30" max="30" step="0.1" value="0"></label><label>Precipitation multiplier<input id="precip" type="number" min="0" max="10" step="0.05" value="1"></label><label>Monthly scenarios JSON<input id="scenario-file" type="file" accept=".json,application/json"></label></div><div class="actions"><button id="scenario-template" type="button" class="secondary">Download monthly scenario template</button><button id="clear-scenarios" type="button" class="secondary">Clear monthly scenarios</button></div><p id="scenario-info" class="hint">Uniform adjustments are used when nonzero.</p></details>
+    <div class="actions run"><button id="run" type="submit" disabled>Run in this browser</button><button id="cancel" type="button" class="secondary" hidden>Cancel</button><span id="status" role="status" aria-live="polite">Choose a climate file or load the demonstration.</span></div>
+    <p id="error" role="alert" hidden></p>
+  </form>
+  <section id="results" class="panel" hidden><div class="section-heading"><h2>Results</h2><div class="actions"><button id="export-summary" type="button" class="secondary">Summary CSV</button><button id="export-daily" type="button" class="secondary">Baseline daily CSV</button><button id="export-json" type="button" class="secondary">Reproducible run JSON</button></div></div><p id="result-info" class="hint"></p><div id="summary" class="table-wrap"></div><h3>Monthly mean AET/PET · baseline</h3><p class="hint">Each line represents a soil regime. A smaller ratio indicates a larger modelled gap between water demand and actual evapotranspiration.</p><div id="chart"></div><div id="monthly" class="table-wrap"></div><details><summary>Method and run notes</summary><ul id="warnings"></ul></details></section>
+  <section class="methods"><h2>A traceable browser port</h2><p>The daily recurrence follows the pinned R kernel, including its final-47-record snow initialization, zero-PET ratio of one, and lateral-flow rules. Chronological input validation and explicit summary weighting are deliberate browser adaptations. The published forDRAT explorer remains a separate workflow.</p><p><a href="https://github.com/ahzs645/forestDroughtTool/blob/master/web/METHOD.md">Method and validation</a> · <a href="https://github.com/bcgov/forestDroughtTool/tree/e02ddcbf8203e65bada1a36655887e1d0c8fe2f5">Original R sources</a> · <a href="./LICENSE.txt">Apache 2.0 licence</a> · <a href="./NOTICE.md">Attribution</a></p></section>
+</main><footer>Source model: Copyright 2019 Province of British Columbia. Browser adaptation 2026. Apache-2.0.</footer>
+</body></html>
